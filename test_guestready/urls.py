@@ -15,8 +15,15 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
+from rest_framework.schemas import get_schema_view
+# from rest_framework.documentation import include_docs_urls
+
+schema_view = get_schema_view(title='Reservations API',
+                              description='An API to make reservations at listed rentals')
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/v1/reservations', include('reservations.urls')),
+    path('schema/', schema_view),
+    # path('docs/', include_docs_urls(title='Reservations API'))
 ]
