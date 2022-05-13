@@ -24,9 +24,19 @@ class Reservation(models.Model, PreviousReservationFinder):
     name = models.CharField(max_length=30, unique=True)
     check_in = models.DateField()
     check_out = models.DateField()
+    previous = models.ForeignKey(
+        'self', on_delete=models.SET_NULL, null=True, blank=True)
 
     class Meta:
         ordering = ('-check_out',)
+
+    def get_queryset(self):
+        return self.objects.all().select_related('previous')
+
+    # def save(self, *args, **kwargs):
+    #     if self.find_previous_reservations() is not None:
+    #         self.prev_reserv = self.find_previous_reservations()
+    #     super().save(*args, **kwargs)
 
     def clean(self) -> None:
         selected_rental = self.rental
