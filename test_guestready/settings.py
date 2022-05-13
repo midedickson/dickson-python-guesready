@@ -28,6 +28,7 @@ DEBUG = config('DEBUG', default=False)
 
 ALLOWED_HOSTS = ["*"]
 CORS_ALLOWED_ORIGINS = [
+    "https://dickson-guesready.netlify.app",
     "http://localhost:3000",
 ]
 
