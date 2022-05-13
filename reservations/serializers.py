@@ -22,12 +22,18 @@ class ReservationSerializer(serializers.ModelSerializer):
     def get_previous(self, obj):
         return ReservationSerializer(obj.find_previous_reservations()).data if obj.find_previous_reservations() else None
 
+    def create(self, validated_data):
+        rental = validated_data.pop('rental_id')
+        validated_data["rental"] = rental
+        return Reservation.objects.create(**validated_data)
+
     def validate(self, attrs):
 
         selected_rental = attrs['rental_id']
+        print(selected_rental)
 
         reservation_exists = Reservation.objects.filter(
-            Q(rental=selected_rental), Q(check_in=attrs['check_in']) | Q(check_out__gte=attrs['check_in'])).exists()
+            rental=selected_rental).filter(Q(check_in=attrs['check_in']) | Q(check_out__gte=attrs['check_in'])).exists()
         if reservation_exists:
             raise serializers.ValidationError(
                 "This rental is already booked between these dates.")
