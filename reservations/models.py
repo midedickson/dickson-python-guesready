@@ -33,15 +33,13 @@ class Reservation(models.Model, PreviousReservationFinder):
     def get_queryset(self):
         return self.objects.all().select_related('previous')
 
-    # def save(self, *args, **kwargs):
-    #     if self.find_previous_reservations() is not None:
-    #         self.prev_reserv = self.find_previous_reservations()
-    #     super().save(*args, **kwargs)
-
     def clean(self) -> None:
         selected_rental = self.rental
-        reservation_exists = Reservation.objects.filter(
-            Q(rental=selected_rental), Q(check_in=self.check_in) | Q(check_out__gte=self.check_in)).exists()
+        reservation_exists = Reservation.objects.filter(Q(rental=selected_rental),
+                                                        Q(check_out__gte=self.check_in) &
+                                                        Q(
+            check_in__lte=self.check_in) |
+            Q(check_in=self.check_in)).exists()
         if reservation_exists:
             raise ValidationError(
                 "This rental is already booked between these dates.")
