@@ -2,7 +2,7 @@ from django.shortcuts import render
 from django.views.generic import TemplateView
 from rest_framework.generics import GenericAPIView
 from rest_framework.response import Response
-from rest_framework.status import HTTP_200_OK, HTTP_400_BAD_REQUEST
+from rest_framework.status import HTTP_200_OK, HTTP_400_BAD_REQUEST, HTTP_201_CREATED
 from utils.custom_exception_handler import get_response
 
 from .models import Reservation
@@ -24,5 +24,5 @@ class ReservationsCreateListView(GenericAPIView):
         serializer = self.serializer_class(data=request.data)
         if serializer.is_valid():
             serializer.save()
-            return Response(get_response(message="Reservation successfully created", result=serializer.data, success=True, status=HTTP_200_OK), status=HTTP_200_OK)
+            return Response(get_response(message="Reservation successfully created", result=serializer.data, success=True, status=HTTP_201_CREATED), status=HTTP_201_CREATED)
         return Response(get_response(message="Reservation creation failed", errors=serializer.errors, success=False, status=HTTP_400_BAD_REQUEST), status=HTTP_400_BAD_REQUEST)

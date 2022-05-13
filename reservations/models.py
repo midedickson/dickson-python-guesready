@@ -21,7 +21,7 @@ class PreviousReservationFinder():
 
 class Reservation(models.Model, PreviousReservationFinder):
     rental = models.ForeignKey('Rental', on_delete=models.CASCADE)
-    name = models.CharField(max_length=30)
+    name = models.CharField(max_length=30, unique=True)
     check_in = models.DateField()
     check_out = models.DateField()
 
@@ -45,7 +45,7 @@ class Reservation(models.Model, PreviousReservationFinder):
 
 
 class Rental(models.Model):
-    name = models.CharField(max_length=100)
+    name = models.CharField(max_length=100, unique=True)
 
     def __str__(self) -> str:
         return f"Rental - {self.name}"
