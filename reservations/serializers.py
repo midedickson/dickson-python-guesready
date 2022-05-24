@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from .models import Rental, Reservation
-from django.db.models import Q
+from django.db.models import Q, Subquery, OuterRef
 
 
 class RentalSerializer(serializers.ModelSerializer):
@@ -13,23 +13,12 @@ class ReservationSerializer(serializers.ModelSerializer):
     rental_id = serializers.PrimaryKeyRelatedField(
         queryset=Rental.objects.all())
     rental = RentalSerializer(read_only=True)
-    previous = serializers.SerializerMethodField()
+    previous = serializers.CharField()
 
     class Meta:
         model = Reservation
-        fields = '__all__'
-
-    def create(self, validated_data):
-        rental = validated_data.pop('rental_id')
-        validated_data["rental"] = rental
-        reservation = Reservation.objects.create(**validated_data)
-        if reservation.find_previous_reservations() is not None:
-            reservation.previous = reservation.find_previous_reservations()
-            reservation.save()
-        return reservation
-
-    def get_previous(self, obj):
-        return ReservationSerializer(obj.previous).data if obj.previous else None
+        fields = ("id", "name", "rental", "rental_id",
+                  "check_in", "check_out", "previous")
 
     def validate(self, attrs):
 

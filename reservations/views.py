@@ -1,11 +1,10 @@
-from django.shortcuts import render
-from django.views.generic import TemplateView
+from django.db.models import OuterRef, Subquery, Q
 from rest_framework.generics import GenericAPIView
 from rest_framework.response import Response
 from rest_framework.status import HTTP_200_OK, HTTP_400_BAD_REQUEST, HTTP_201_CREATED
 from utils.custom_exception_handler import get_response
 
-from .models import Reservation
+from .models import Rental, Reservation
 from .serializers import ReservationSerializer
 
 # Create your views here.
@@ -13,7 +12,11 @@ from .serializers import ReservationSerializer
 
 class ReservationsCreateListView(GenericAPIView):
     serializer_class = ReservationSerializer
-    queryset = Reservation.objects.all()
+
+    def get_queryset(self):
+        previous = Reservation.objects.filter(Q(rental=OuterRef("rental")),
+                                              ~Q(id=OuterRef("pk")), Q(check_in__lt=OuterRef("check_in")))
+        return Reservation.objects.annotate(previous=Subquery(previous.values('name')[:1]))
 
     def get(self, request):
         reservations = self.get_queryset()
